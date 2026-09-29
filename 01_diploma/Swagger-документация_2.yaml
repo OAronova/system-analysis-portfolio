@@ -1,0 +1,1138 @@
+openapi: 3.0.1
+info:
+  title: Слово дня API
+  description: API для мобильного приложения по изучению иностранных слов "Слово дня"
+  version: 1.0.0
+  contact:
+    name: Языковая школа
+    email: support@slovodnya.ru
+  license:
+    name: Proprietary
+
+servers:
+  - url: https://api.slovodnya.ru/api/v1
+    description: Production server
+  - url: http://localhost:8080/api/v1
+    description: Development server
+
+tags:
+  - name: Auth
+    description: Авторизация и управление профилем
+  - name: User
+    description: Управление пользователем
+  - name: Words
+    description: Работа со словами
+  - name: Notifications
+    description: Настройки уведомлений
+  - name: Admin
+    description: Администрирование и модерация
+
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # ============================================
+    # 1. АВТОРИЗАЦИЯ
+    # ============================================
+    SocialLoginRequest:
+      type: object
+      required:
+        - provider
+        - token
+      properties:
+        provider:
+          type: string
+          enum: [google, yandex]
+          description: Провайдер социальной сети
+          example: google
+        token:
+          type: string
+          description: OAuth-токен от социальной сети
+          example: ya29.a0AfH6SMB1234567890
+
+    AuthResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: JWT-токен для доступа к API
+        refresh_token:
+          type: string
+          description: Refresh-токен для обновления access_token
+        user:
+          $ref: '#/components/schemas/UserProfile'
+
+    # ============================================
+    # 2. ПОЛЬЗОВАТЕЛЬ
+    # ============================================
+    UserProfile:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          format: int64
+          example: 12345
+        social_id:
+          type: string
+          example: 123456789012345678901
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        name:
+          type: string
+          example: Иван Петров
+        level:
+          type: string
+          enum: [A1, A2, B1, B2]
+          description: Уровень владения языком
+          example: B1
+        created_at:
+          type: string
+          format: date-time
+          example: 2026-07-31T10:00:00Z
+        updated_at:
+          type: string
+          format: date-time
+          example: 2026-07-31T10:00:00Z
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Иван Петров
+        level:
+          type: string
+          enum: [A1, A2, B1, B2]
+          example: B2
+
+    # ============================================
+    # 3. СЛОВА
+    # ============================================
+    Word:
+      type: object
+      properties:
+        word_id:
+          type: integer
+          format: int64
+          example: 1001
+        text:
+          type: string
+          example: serendipity
+          description: Текст слова
+        transcription:
+          type: string
+          example: /ˌser.ənˈdɪp.ə.ti/
+          description: Транскрипция
+        translation:
+          type: string
+          example: способность делать счастливые открытия случайно
+          description: Перевод на русский
+        level:
+          type: string
+          enum: [A1, A2, B1, B2]
+          example: B2
+          description: Уровень сложности слова
+        is_verified:
+          type: boolean
+          example: true
+          description: Проверено администратором
+        created_at:
+          type: string
+          format: date-time
+          example: 2026-07-31T10:00:00Z
+        updated_at:
+          type: string
+          format: date-time
+          example: 2026-07-31T10:00:00Z
+
+    WordDefinition:
+      type: object
+      properties:
+        definition_id:
+          type: integer
+          format: int64
+          example: 5001
+          description: Уникальный идентификатор значения
+        definition_text:
+          type: string
+          example: the fact of finding interesting or valuable things by chance
+          description: Текст значения на английском
+        example:
+          type: string
+          example: A story about a woman who found a rare book by serendipity.
+          description: Пример использования
+        order_index:
+          type: integer
+          example: 1
+          description: Порядковый номер значения (1-5)
+        created_at:
+          type: string
+          format: date-time
+          example: 2026-07-31T10:00:00Z
+          description: Дата и время создания значения
+
+    WordUserStatus:
+      type: object
+      properties:
+        user_word_id:
+          type: integer
+          format: int64
+          example: 3001
+        is_learned:
+          type: boolean
+          example: false
+          description: Отметка "Выучено"
+        is_shared:
+          type: boolean
+          example: false
+          description: Отмечено для публикации
+        is_pending:
+          type: boolean
+          example: false
+          description: Ожидает модерации
+
+    WordCard:
+      type: object
+      properties:
+        word:
+          $ref: '#/components/schemas/Word'
+        definitions:
+          type: array
+          items:
+            $ref: '#/components/schemas/WordDefinition'
+          description: Список всех значений слова (только в полной карточке)
+        user_status:
+          $ref: '#/components/schemas/WordUserStatus'
+
+    CreateWordRequest:
+      type: object
+      required:
+        - text
+        - translation
+      properties:
+        text:
+          type: string
+          example: serendipity
+          description: Текст слова (обязательно)
+        translation:
+          type: string
+          example: способность делать счастливые открытия случайно
+          description: Перевод на русский (обязательно)
+        transcription:
+          type: string
+          example: /ˌser.ənˈdɪp.ə.ti/
+          description: Транскрипция (опционально)
+        example:
+          type: string
+          example: A story about a woman who found a rare book by serendipity.
+          description: Пример использования (опционально)
+        share:
+          type: boolean
+          default: false
+          description: Отметить для публикации (отправить на модерацию)
+
+    WordListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/WordCard'
+        total:
+          type: integer
+          example: 150
+        page:
+          type: integer
+          example: 1
+        page_size:
+          type: integer
+          example: 20
+
+    # ============================================
+    # 4. НАСТРОЙКИ УВЕДОМЛЕНИЙ
+    # ============================================
+    NotificationSettings:
+      type: object
+      properties:
+        setting_id:
+          type: integer
+          format: int64
+          example: 5001
+        send_time:
+          type: string
+          format: time
+          example: "10:00:00"
+          description: Время отправки уведомления
+        week_days:
+          type: array
+          items:
+            type: integer
+            minimum: 1
+            maximum: 7
+          example: [1, 3, 5]
+          description: Дни недели (1 - ПН, 7 - ВС)
+        frequency_per_day:
+          type: integer
+          minimum: 1
+          maximum: 3
+          example: 1
+          description: Количество уведомлений в день
+        updated_at:
+          type: string
+          format: date-time
+          example: 2026-07-31T10:00:00Z
+
+    # ============================================
+    # 5. ИСТОРИЯ ПУБЛИКАЦИЙ (SHARED_WORD)
+    # ============================================
+    SharedWord:
+      type: object
+      properties:
+        shared_word_id:
+          type: integer
+          format: int64
+          example: 6001
+        user_word_id:
+          type: integer
+          format: int64
+          example: 3001
+        shared_at:
+          type: string
+          format: date-time
+          example: 2026-07-31T10:00:00Z
+        social_network:
+          type: string
+          enum: [facebook, twitter, instagram, vkontakte]
+          example: facebook
+        share_url:
+          type: string
+          example: https://facebook.com/sharer/sharer.php?u=...
+
+    # ============================================
+    # 6. АДМИНИСТРИРОВАНИЕ
+    # ============================================
+    ModerationItem:
+      type: object
+      properties:
+        user_word_id:
+          type: integer
+          format: int64
+          example: 3001
+        user:
+          $ref: '#/components/schemas/UserProfile'
+        word:
+          $ref: '#/components/schemas/Word'
+        submitted_at:
+          type: string
+          format: date-time
+          example: 2026-07-30T10:00:00Z
+
+    # ============================================
+    # 7. ОБЩИЕ
+    # ============================================
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          example: 2026-07-31T10:00:00Z
+        status:
+          type: integer
+          example: 400
+        error:
+          type: string
+          example: Bad Request
+        message:
+          type: string
+          example: Неверный формат данных
+        path:
+          type: string
+          example: /api/v1/words
+
+paths:
+  # ------------------------------------------
+  # 1. АВТОРИЗАЦИЯ
+  # ------------------------------------------
+  /auth/social-login:
+    post:
+      tags:
+        - Auth
+      summary: Авторизация через социальную сеть
+      description: Выполняет вход пользователя через социальную сеть (Google, Yandex)
+      operationId: socialLogin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SocialLoginRequest'
+      responses:
+        '200':
+          description: Успешная авторизация
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Ошибка авторизации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/me:
+    get:
+      tags:
+        - Auth
+      summary: Получение профиля текущего пользователя
+      description: Возвращает информацию о текущем авторизованном пользователе
+      operationId: getCurrentUser
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ------------------------------------------
+  # 2. ПОЛЬЗОВАТЕЛЬ
+  # ------------------------------------------
+  /users/profile:
+    get:
+      tags:
+        - User
+      summary: Получить профиль пользователя
+      description: Возвращает полный профиль пользователя
+      operationId: getUserProfile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          description: Не авторизован
+
+    put:
+      tags:
+        - User
+      summary: Обновить профиль пользователя
+      description: Обновляет данные профиля (имя, уровень языка)
+      operationId: updateUserProfile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: Профиль обновлен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '400':
+          description: Неверный запрос
+        '401':
+          description: Не авторизован
+
+  /users/level:
+    post:
+      tags:
+        - User
+      summary: Пройти входной тест
+      description: Проходит входной тест для определения уровня языка
+      operationId: takeLevelTest
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                answers:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      question_id:
+                        type: integer
+                      answer:
+                        type: string
+      responses:
+        '200':
+          description: Тест пройден
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  level:
+                    type: string
+                    enum: [A1, A2, B1, B2]
+                    example: B1
+                  score:
+                    type: integer
+                    example: 85
+        '400':
+          description: Неверные ответы
+        '401':
+          description: Не авторизован
+
+  /users/settings:
+    get:
+      tags:
+        - User
+      summary: Получить настройки пользователя
+      description: Возвращает все настройки приложения для текущего пользователя
+      operationId: getUserSettings
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notification:
+                    $ref: '#/components/schemas/NotificationSettings'
+                  level:
+                    type: string
+                    enum: [A1, A2, B1, B2]
+        '401':
+          description: Не авторизован
+
+  # ------------------------------------------
+  # 3. СЛОВА
+  # ------------------------------------------
+  /words/daily:
+    get:
+      tags:
+        - Words
+      summary: Получить слово дня
+      description: Возвращает полную карточку слова дня для текущего пользователя
+      operationId: getDailyWord
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: include_definitions
+          in: query
+          schema:
+            type: boolean
+            default: true
+          description: Включить все значения слова в ответ
+      responses:
+        '200':
+          description: Слово дня
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WordCard'
+        '204':
+          description: Слово дня не найдено (на сегодня нет слов)
+        '401':
+          description: Не авторизован
+
+  /words:
+    get:
+      tags:
+        - Words
+      summary: Получить словарь пользователя
+      description: Возвращает список всех слов пользователя с пагинацией
+      operationId: getUserWords
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+          description: Номер страницы
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+          description: Количество слов на странице
+        - name: filter
+          in: query
+          schema:
+            type: string
+            enum: [all, learned, in_progress, shared]
+            default: all
+          description: Фильтр по статусу слов
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Поиск по тексту слова или переводу
+      responses:
+        '200':
+          description: Список слов
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WordListResponse'
+        '401':
+          description: Не авторизован
+
+    post:
+      tags:
+        - Words
+      summary: Добавить свое слово
+      description: Добавляет новое слово в словарь пользователя
+      operationId: addUserWord
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWordRequest'
+      responses:
+        '201':
+          description: Слово добавлено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WordCard'
+        '400':
+          description: Неверный запрос (не хватает обязательных полей)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Не авторизован
+        '409':
+          description: Слово уже существует в словаре пользователя
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /words/{wordId}:
+    get:
+      tags:
+        - Words
+      summary: Получить информацию о слове
+      description: Возвращает полную информацию о конкретном слове пользователя
+      operationId: getUserWordById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: wordId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: ID слова
+      responses:
+        '200':
+          description: Информация о слове
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WordCard'
+        '401':
+          description: Не авторизован
+        '404':
+          description: Слово не найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - Words
+      summary: Удалить слово из словаря
+      description: Удаляет слово из словаря пользователя
+      operationId: deleteUserWord
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: wordId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: ID слова
+      responses:
+        '204':
+          description: Слово удалено
+        '401':
+          description: Не авторизован
+        '404':
+          description: Слово не найдено
+
+  /words/{wordId}/status:
+    put:
+      tags:
+        - Words
+      summary: Обновить статус слова
+      description: Изменяет статус слова (выучено/не выучено, отмечено для публикации)
+      operationId: updateWordStatus
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: wordId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: ID слова
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                is_learned:
+                  type: boolean
+                  description: Отметить как выученное
+                  example: true
+                is_shared:
+                  type: boolean
+                  description: Отметить для публикации
+                  example: true
+      responses:
+        '200':
+          description: Статус обновлен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WordUserStatus'
+        '400':
+          description: Неверный запрос
+        '401':
+          description: Не авторизован
+        '404':
+          description: Слово не найдено
+
+  /words/{wordId}/learn:
+    post:
+      tags:
+        - Words
+      summary: Отметить слово как выученное
+      description: Быстрое действие - отметить слово как "Выучено"
+      operationId: markWordAsLearned
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: wordId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: ID слова
+      responses:
+        '200':
+          description: Слово отмечено как выученное
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Слово отмечено как выученное
+                  user_word_id:
+                    type: integer
+                    example: 3001
+        '401':
+          description: Не авторизован
+        '404':
+          description: Слово не найдено
+
+  /words/{wordId}/remind:
+    post:
+      tags:
+        - Words
+      summary: Запросить напоминание о слове
+      description: Отправляет уведомление "Напомнить позже" для слова
+      operationId: remindLater
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: wordId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: ID слова
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                remind_in_minutes:
+                  type: integer
+                  default: 30
+                  minimum: 15
+                  maximum: 1440
+                  description: Через сколько минут напомнить (по умолчанию 30)
+      responses:
+        '200':
+          description: Напоминание запланировано
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Напоминание запланировано через 30 минут
+                  scheduled_at:
+                    type: string
+                    format: date-time
+        '401':
+          description: Не авторизован
+        '404':
+          description: Слово не найдено
+
+  /words/{wordId}/share:
+    post:
+      tags:
+        - Words
+      summary: Поделиться словом
+      description: Открывает диалог для публикации слова в социальной сети
+      operationId: shareWord
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: wordId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: ID слова
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                social_network:
+                  type: string
+                  enum: [facebook, twitter, instagram, vkontakte]
+                  example: facebook
+                message:
+                  type: string
+                  example: Сегодня я выучил новое слово!
+                  description: Дополнительное сообщение к посту
+      responses:
+        '200':
+          description: Ссылка для публикации получена
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  share_url:
+                    type: string
+                    example: https://facebook.com/sharer/sharer.php?u=...
+                  post_preview:
+                    type: string
+                    example: "Слово дня: serendipity - способность делать счастливые открытия случайно"
+        '401':
+          description: Не авторизован
+        '404':
+          description: Слово не найдено
+
+  /words/{wordId}/share/history:
+    get:
+      tags:
+        - Words
+      summary: Получить историю публикаций слова
+      description: Возвращает историю всех публикаций данного слова в социальных сетях
+      operationId: getShareHistory
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: wordId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: ID слова
+      responses:
+        '200':
+          description: История публикаций
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SharedWord'
+        '401':
+          description: Не авторизован
+        '404':
+          description: Слово не найдено
+
+  # ------------------------------------------
+  # 4. НАСТРОЙКИ УВЕДОМЛЕНИЙ
+  # ------------------------------------------
+  /notifications/settings:
+    get:
+      tags:
+        - Notifications
+      summary: Получить настройки уведомлений
+      description: Возвращает текущие настройки push-уведомлений пользователя
+      operationId: getNotificationSettings
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Настройки уведомлений
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationSettings'
+        '204':
+          description: Настройки не найдены (будут созданы при первом сохранении)
+        '401':
+          description: Не авторизован
+
+    put:
+      tags:
+        - Notifications
+      summary: Обновить настройки уведомлений
+      description: Сохраняет новые настройки push-уведомлений
+      operationId: updateNotificationSettings
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                send_time:
+                  type: string
+                  format: time
+                  example: "10:00:00"
+                week_days:
+                  type: array
+                  items:
+                    type: integer
+                    minimum: 1
+                    maximum: 7
+                  example: [1, 3, 5]
+                frequency_per_day:
+                  type: integer
+                  minimum: 1
+                  maximum: 3
+                  example: 1
+      responses:
+        '200':
+          description: Настройки обновлены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationSettings'
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Не авторизован
+
+  /notifications/reminder:
+    post:
+      tags:
+        - Notifications
+      summary: Запросить напоминание о включении уведомлений
+      description: Отправляет системное напоминание о необходимости включить уведомления (не чаще 1 раза в неделю)
+      operationId: requestNotificationReminder
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Напоминание отправлено
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Напоминание отправлено
+                  last_reminded_at:
+                    type: string
+                    format: date-time
+        '429':
+          description: Слишком частый запрос (напоминание уже было отправлено на этой неделе)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Не авторизован
+
+  # ------------------------------------------
+  # 5. АДМИНИСТРИРОВАНИЕ
+  # ------------------------------------------
+  /admin/moderation/pending:
+    get:
+      tags:
+        - Admin
+      summary: Получить список слов на модерации
+      description: Возвращает список пользовательских слов, ожидающих проверки (только для администраторов)
+      operationId: getPendingModeration
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Номер страницы
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            default: 20
+          description: Количество на странице
+      responses:
+        '200':
+          description: Список слов на модерации
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ModerationItem'
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  page_size:
+                    type: integer
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Доступ запрещен (не администратор)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /admin/moderation/{userWordId}:
+    post:
+      tags:
+        - Admin
+      summary: Принять решение по модерации
+      description: Одобряет или отклоняет слово на модерации (только для администраторов)
+      operationId: decideModeration
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userWordId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: ID записи USER_WORD, отправленной на модерацию
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - approved
+              properties:
+                approved:
+                  type: boolean
+                  example: true
+                  description: true - одобрить, false - отклонить
+                comment:
+                  type: string
+                  example: Слово одобрено. Хороший пример использования.
+                  description: Комментарий модератора (опционально)
+      responses:
+        '200':
+          description: Решение принято
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Слово одобрено
+                  status:
+                    type: string
+                    enum: [approved, rejected]
+        '400':
+          description: Неверный запрос
+        '401':
+          description: Не авторизован
+        '403':
+          description: Доступ запрещен (не администратор)
+        '404':
+          description: Запись на модерацию не найдена
