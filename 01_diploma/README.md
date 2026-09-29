@@ -29,7 +29,7 @@
 | Интервью и сценарии | [interview](https://docs.google.com/document/d/1jTtv2Y7wN8F0xDT73mSB0obsPdpS-Q2RwbofGwboJEE/edit?tab=t.u329908smz1b#heading=h.7v29ukigt8zk) |
 | Функциональные и нефункциональные требования | [requirements](https://docs.google.com/document/d/1jTtv2Y7wN8F0xDT73mSB0obsPdpS-Q2RwbofGwboJEE/edit?tab=t.npxddpcyrq99) |
 | Swagger-документация | [swagger.yaml](Swagger-документация_2.yaml) |
-| Диаграмма Use Case | [Открыть диаграмму](UCD_Final.png) |
+| Диаграмма Use Case | [Открыть диаграмму](UCD_final.png) |
 | Диаграмма классов | [Диаграмма классов](Диаграмма%20классов%20версия%205.png) |
 
 ---
