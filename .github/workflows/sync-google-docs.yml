@@ -25,4 +25,3 @@ jobs:
           google_drive_folder_id: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
           github_directory: 'docs'
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          github_repository: 'OAronova/system-analysis-portfolio'
