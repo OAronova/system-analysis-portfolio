@@ -1,4 +1,6 @@
 name: Sync Google Docs to GitHub
+permissions:
+  contents: write
 
 on:
   schedule:
