@@ -28,9 +28,9 @@
 | Спецификация требований | [specification](https://docs.google.com/document/d/1jTtv2Y7wN8F0xDT73mSB0obsPdpS-Q2RwbofGwboJEE/edit?tab=t.0#heading=h.9weqbrw978b2) |
 | Интервью и сценарии | [interview](https://docs.google.com/document/d/1jTtv2Y7wN8F0xDT73mSB0obsPdpS-Q2RwbofGwboJEE/edit?tab=t.u329908smz1b#heading=h.7v29ukigt8zk) |
 | Функциональные и нефункциональные требования | [requirements](https://docs.google.com/document/d/1jTtv2Y7wN8F0xDT73mSB0obsPdpS-Q2RwbofGwboJEE/edit?tab=t.npxddpcyrq99) |
-| Swagger-документация | [swagger.yaml](swagger.yaml) |
-| Диаграмма Use Case | [use-case.png](images/use-case.png) / [исходник](images/use-case.puml) |
-| Диаграмма классов | [class-diagram.png](images/class-diagram.png) / [исходник](images/class-diagram.puml) |
+| Swagger-документация | [swagger.yaml](Swagger-документация_2.yaml) |
+| Диаграмма Use Case | [use-case.png](UCD_Final.png) |
+| Диаграмма классов | [class-diagram.png](Диаграмма классов версия 5.png) |
 
 ---
 
@@ -44,6 +44,6 @@
 
 ---
 
-## 🔗 Ссылка на оригинал
+## 🔗 Ссылка на работу
 
 [Дипломная работа в Google Docs](https://docs.google.com/document/d/1jTtv2Y7wN8F0xDT73mSB0obsPdpS-Q2RwbofGwboJEE/edit)
