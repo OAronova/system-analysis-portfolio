@@ -25,7 +25,7 @@
 
 | Артефакт | Ссылка |
 |---|---|
-| Спецификация требований | [specification.md]([specification.md](https://docs.google.com/document/d/1jTtv2Y7wN8F0xDT73mSB0obsPdpS-Q2RwbofGwboJEE/edit?tab=t.0#heading=h.9weqbrw978b2)) |
+| Спецификация требований | [specification.md](https://docs.google.com/document/d/1jTtv2Y7wN8F0xDT73mSB0obsPdpS-Q2RwbofGwboJEE/edit?tab=t.0#heading=h.9weqbrw978b2) |
 | Интервью и сценарии | [interview.md](interview.md) |
 | Функциональные и нефункциональные требования | [requirements.md](requirements.md) |
 | Трассировка требований | [traceability.md](traceability.md) |
