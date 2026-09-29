@@ -30,7 +30,7 @@
 | Функциональные и нефункциональные требования | [requirements](https://docs.google.com/document/d/1jTtv2Y7wN8F0xDT73mSB0obsPdpS-Q2RwbofGwboJEE/edit?tab=t.npxddpcyrq99) |
 | Swagger-документация | [swagger.yaml](Swagger-документация_2.yaml) |
 | Диаграмма Use Case | [use-case.png](UCD_Final.png) |
-| Диаграмма классов | [class-diagram.png](Диаграмма классов версия 5.png) |
+| Диаграмма классов | [Диаграмма классов](Диаграмма%20классов%20версия%205.png) |
 
 ---
 
