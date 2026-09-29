@@ -25,10 +25,9 @@
 
 | Артефакт | Ссылка |
 |---|---|
-| Спецификация требований | [specification.md](https://docs.google.com/document/d/1jTtv2Y7wN8F0xDT73mSB0obsPdpS-Q2RwbofGwboJEE/edit?tab=t.0#heading=h.9weqbrw978b2) |
-| Интервью и сценарии | [interview.md](interview.md) |
-| Функциональные и нефункциональные требования | [requirements.md](requirements.md) |
-| Трассировка требований | [traceability.md](traceability.md) |
+| Спецификация требований | [specification](https://docs.google.com/document/d/1jTtv2Y7wN8F0xDT73mSB0obsPdpS-Q2RwbofGwboJEE/edit?tab=t.0#heading=h.9weqbrw978b2) |
+| Интервью и сценарии | [interview](https://docs.google.com/document/d/1jTtv2Y7wN8F0xDT73mSB0obsPdpS-Q2RwbofGwboJEE/edit?tab=t.u329908smz1b#heading=h.7v29ukigt8zk) |
+| Функциональные и нефункциональные требования | [requirements](https://docs.google.com/document/d/1jTtv2Y7wN8F0xDT73mSB0obsPdpS-Q2RwbofGwboJEE/edit?tab=t.npxddpcyrq99) |
 | Swagger-документация | [swagger.yaml](swagger.yaml) |
 | Диаграмма Use Case | [use-case.png](images/use-case.png) / [исходник](images/use-case.puml) |
 | Диаграмма классов | [class-diagram.png](images/class-diagram.png) / [исходник](images/class-diagram.puml) |
